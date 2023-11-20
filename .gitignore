@@ -9,4 +9,5 @@ docs/_build/
 dist/
 venv/
 /static/*.js
+/uploads/
 .DS_Store
