@@ -12,3 +12,5 @@ venv/
 /uploads/
 .DS_Store
 *.log
+*.yml
+*.js

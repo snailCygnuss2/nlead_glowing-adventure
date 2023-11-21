@@ -1,13 +1,30 @@
-from flask import Flask, render_template, request
 import logging
-import os
-
-
 logging.basicConfig(filename="record.log", level=logging.DEBUG, format='%(levelname)s:%(name)s: [%(asctime)s] - - %(message)s')
+import os
+from flask import Flask, render_template, request
+import yaml
+import process_file
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_FILES'] = {"Research calls.xlsx", "Research conference calls.xlsx", "Seminars webinars etc.xlsx", "Special issues - call for papers.xlsx"}
+
+# Open configuration file
+with open("process_file.yml", "r") as ymlfile:
+    file_params = yaml.safe_load(ymlfile)
+
+# Generate Files
+def process_excel_js(f_name):
+    """
+    Convert the information to js file
+    """
+    # Search for the file params
+    for  param in file_params:
+        if file_params[param]["file_name"] == f_name:
+            file_param = file_params[param]
+    print(file_param)
+    process_file.generate_out(file_param, "uploads")
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -31,8 +48,9 @@ def upload():
 
     if file and file.filename in app.config["ALLOWED_FILES"]:
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-        app.logger.info(f"File {file.filename} uploaded succesfully.")
-        return 'File uploaded successfully'
+        app.logger.info("File %s uploaded succesfully.", file.filename)
+        process_excel_js(file.filename) # Call the conversion function
+        return "File Uploaded"
 
     app.logger.warning("File not uploaded. Invalid name/type.")
     return 'Invalid file type'
