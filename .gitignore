@@ -11,3 +11,4 @@ venv/
 /static/*.js
 /uploads/
 .DS_Store
+*.log

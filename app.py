@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request
+import logging
 import os
+
+
+logging.basicConfig(filename="record.log", level=logging.DEBUG, format='%(levelname)s:%(name)s: [%(asctime)s] - - %(message)s')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -27,8 +31,10 @@ def upload():
 
     if file and file.filename in app.config["ALLOWED_FILES"]:
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+        app.logger.info(f"File {file.filename} uploaded succesfully.")
         return 'File uploaded successfully'
 
+    app.logger.warning("File not uploaded. Invalid name/type.")
     return 'Invalid file type'
 
 if __name__ == '__main__':
