@@ -7,6 +7,8 @@ import shutil
 import subprocess
 import logging
 
+# TODO: Combine link with the name
+
 # def copy_files(file_params, cloud_path):
 #     """
 #     Copy modified files from one drive to the current folder for processing

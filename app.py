@@ -5,6 +5,9 @@ from flask import Flask, render_template, request
 import yaml
 import process_file
 
+# TODO: Edit the HTML template file
+# TODO: Move data file to static
+# TODO: Generate updated date.
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
