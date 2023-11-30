@@ -10,16 +10,24 @@ import process_file
 # TODO: Generate updated date.
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['ALLOWED_FILES'] = {"Research calls.xlsx", "Research conference calls.xlsx", "Seminars webinars etc.xlsx", "Special issues - call for papers.xlsx"}
 
 # Open configuration file
 with open("process_file.yml", "r") as ymlfile:
     file_params = yaml.safe_load(ymlfile)
 
+app.config['UPLOAD_FOLDER'] = file_params["Dir"]["uploads"]
+app.config['WORKING_DIR'] = file_params["Dir"]["working_dir"]
+app.config['OUTPUT'] = file_params["Dir"]["output"]
+app.config['ALLOWED_FILES'] = {file_params[d]["file_name"] for d in file_params if "file_name" in file_params[d]}
 
 # Set correct directory
-os.chdir(file_params["working_dir"])
+os.chdir(app.config["WORKING_DIR"])
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
+if not os.path.exists(app.config['OUTPUT']):
+    os.makedirs(app.config['OUTPUT'])
 
 # Generate Files
 def process_excel_js(f_name):
@@ -27,14 +35,15 @@ def process_excel_js(f_name):
     Convert the information to js file
     """
     # Search for the file params
-    for  param in file_params:
-        if file_params[param]["file_name"] == f_name:
-            file_param = file_params[param]
-    print(file_param)
-    process_file.generate_out(file_param, "uploads")
+    file_param = {}
+    for file_type in file_params:
+        if "file_name" in file_params[file_type] and file_params[file_type]["file_name"] == f_name:
+            file_param = file_params[file_type]
+    if len(file_param) != 0:
+        process_file.generate_out(file_param, "uploads")
+    else:
+        app.logger.warning("File Parameters not Found")
 
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_FILES']
