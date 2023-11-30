@@ -17,6 +17,10 @@ app.config['ALLOWED_FILES'] = {"Research calls.xlsx", "Research conference calls
 with open("process_file.yml", "r") as ymlfile:
     file_params = yaml.safe_load(ymlfile)
 
+
+# Set correct directory
+os.chdir(file_params["working_dir"])
+
 # Generate Files
 def process_excel_js(f_name):
     """
