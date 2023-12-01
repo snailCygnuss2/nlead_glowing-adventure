@@ -2,9 +2,9 @@ import pylightxl as xl
 from datetime import date, datetime
 import os
 import re
-import filecmp
-import shutil
-import subprocess
+# import filecmp
+# import shutil
+# import subprocess
 import logging
 
 # TODO: Combine link with the name
@@ -42,13 +42,14 @@ def check_expiry_date(given_date):
     return False
 
 
-def generate_out(file_params, upload_path):
+def generate_out(file_params, upload_path="", save_path=""):
     """
     Create the json file from excel.
     """
     fn_paper = os.path.join(upload_path, file_params["file_name"])
     fn_paper_sheet = file_params["sheet_name"]
     table_name = file_params["out_name"]
+    fn_output = os.path.join(save_path, f"{table_name}.js")
 
     # Check if file exists, otherwise skip the file for processing
     if not os.path.isfile(fn_paper):
@@ -104,7 +105,7 @@ def generate_out(file_params, upload_path):
             date_idx = header.index(date_col_name)
             break
 
-    with open(f"{table_name}.js", "w") as f:
+    with open(fn_output, "w") as f:
         f.write("var dataSet = [\n")
         for line in db.nr(name=table_name)[1:]:
             # If the date has expired, do not add it to the list 
@@ -122,29 +123,30 @@ def generate_out(file_params, upload_path):
         f.write("];")
         
 
-def file_edit_date():
+def file_edit_date(save_path=""):
     """
     Create a file that contains the update time stamp. File name hard coded.
     """
-    print("Adding update date")
+    logging.info("Adding update date")
+    f_name = os.path.join(save_path, "updated_date.js")
     date_time = datetime.now()
     date_time = f"{date_time.year}-{date_time.month:02}-{date_time.day:02} {date_time.hour:02}:{date_time.minute:02}"
-    with open("updated_date.js", "w") as f:
+    with open(f_name, "w") as f:
         f.write(f"let updated_date = '{date_time}';")
 
 
-def copy_files_git_folder(file_params):
-    """
-    Copy the files to github folder
-    """
-    for f in file_params:
-        file_name = f["out_name"] + ".js"
-        shutil.copyfile(file_name, f"../nlead_data_edit/data/{file_name}")
-    shutil.copyfile("updated_date.js", "../nlead_data_edit/data/updated_date.js")
+# def copy_files_git_folder(file_params):
+#     """
+#     Copy the files to github folder
+#     """
+#     for f in file_params:
+#         file_name = f["out_name"] + ".js"
+#         shutil.copyfile(file_name, f"../nlead_data_edit/data/{file_name}")
+#     shutil.copyfile("updated_date.js", "../nlead_data_edit/data/updated_date.js")
 
 
 if __name__ == "__main__":
-    file_params = [{"file_name": "Special issues - call for papers.xlsx",
+    new_file_params = [{"file_name": "Special issues - call for papers.xlsx",
                     "sheet_name": "Special issues",
                     "out_name": "special_issues"},
                     {"file_name": "Seminars webinars etc.xlsx",
@@ -161,15 +163,15 @@ if __name__ == "__main__":
 
     # copy_files(file_params, cloud_path)
 
-    for file_param in file_params:
+    for file_param in new_file_params:
         generate_out(file_param)
 
     file_edit_date()
     print("JSON files updated")
 
-    copy_files_git_folder(file_params)
-    print("Copied files to git folder")
+    # copy_files_git_folder(file_params)
+    # print("Copied files to git folder")
 
     # Call shell script to push ot github.
-    subprocess.call(["zsh", "update_git.sh"])
+    # subprocess.call(["zsh", "update_git.sh"])
     print("Completed")

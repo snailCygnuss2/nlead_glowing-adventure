@@ -6,8 +6,6 @@ import yaml
 import process_file
 
 # TODO: Edit the HTML template file
-# TODO: Move data file to static
-# TODO: Generate updated date.
 
 app = Flask(__name__)
 
@@ -40,7 +38,8 @@ def process_excel_js(f_name):
         if "file_name" in file_params[file_type] and file_params[file_type]["file_name"] == f_name:
             file_param = file_params[file_type]
     if len(file_param) != 0:
-        process_file.generate_out(file_param, "uploads")
+        process_file.generate_out(file_param, app.config["UPLOAD_FOLDER"], app.config["OUTPUT"])
+        process_file.file_edit_date(app.config["OUTPUT"])
     else:
         app.logger.warning("File Parameters not Found")
 
