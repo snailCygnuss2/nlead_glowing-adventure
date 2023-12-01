@@ -1,11 +1,7 @@
+"""
+Flask App
+"""
 import os
-import logging
-
-logging.basicConfig(
-    filename="record.log",
-    level=logging.DEBUG,
-    format="%(levelname)s:%(name)s: [%(asctime)s] - - %(message)s",
-)
 from flask import Flask, render_template, request
 import yaml
 import process_file
@@ -58,6 +54,7 @@ def process_excel_js(f_name):
 
 
 def allowed_file(filename):
+    """Compare file name with allowed files"""
     return (
         "." in filename
         and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_FILES"]
@@ -66,11 +63,13 @@ def allowed_file(filename):
 
 @app.route("/")
 def index():
+    """Main Page"""
     return render_template("index.html")
 
 
 @app.route("/upload", methods=["POST"])
 def upload():
+    """Upload function"""
     if "file" not in request.files:
         return "No file part"
 
@@ -90,4 +89,11 @@ def upload():
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(
+        filename="record.log",
+        level=logging.DEBUG,
+        format="%(levelname)s:%(name)s: [%(asctime)s] - - %(message)s",
+    )
     app.run(debug=True)
