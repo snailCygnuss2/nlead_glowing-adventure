@@ -15,7 +15,7 @@ import process_file
 app = Flask(__name__)
 
 # Open configuration file
-with open("process_file.yml", "r") as ymlfile:
+with open(os.path.join(os.path.dirname(__file__), "process_file.yml"), "r") as ymlfile:
     file_params = yaml.safe_load(ymlfile)
 
 app.config["UPLOAD_FOLDER"] = file_params["Dir"]["uploads"]
